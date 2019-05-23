@@ -39,7 +39,6 @@ gulp.task('scripts', function(){
     return gulp.src(['app/scripts/**/*.ts'])
         .pipe(typescript())
         .pipe(gulp.dest('app/js'))
-        .pipe(browserSync.reload({stream: true}))
 });
 
 gulp.task('babel', function () {
@@ -79,13 +78,15 @@ gulp.task('prebuild', async function() {
 
     var buildHtml = gulp.src('app/*.html')
         .pipe(gulp.dest('dist'));
-
+    var buildJSON = gulp.src('app/json/*.json')
+        .pipe(gulp.dest('dist/json'))
 });
 
 gulp.task('watch', function () {
     gulp.watch('app/sass/**/*.sass', gulp.series('sass'));
-    gulp.watch('app/*.html').on('change', browserSync.reload);
-    gulp.watch('app/scripts/**/*.ts').on('change', browserSync.reload);
+    gulp.watch('app/*.html', gulp.series(browserSync.reload));
+    gulp.watch('app/scripts/**/*.ts',gulp.series('scripts'));
+    gulp.watch('app/scripts/**/*.ts', gulp.series(browserSync.reload));
 });
-gulp.task('default', gulp.parallel('watch', 'browser-sync', 'sass', 'libs', 'scripts', 'babel','browserify', 'cssnano'));
+gulp.task('default', gulp.parallel('watch', 'sass', 'libs', 'scripts', 'babel','browserify', 'cssnano','browser-sync'));
 gulp.task('build', gulp.parallel('prebuild', 'clean', 'sass', 'scripts'));
